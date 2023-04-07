@@ -21,11 +21,13 @@ int main(){
     }
     
     graph.init();
+ 
     debug(graph.co);
     debug(graph.ci);
     debug(graph.LAi->get(4,1));
-        debug(graph.LAi->get(4,2));
+    debug(graph.LAi->get(4,2));
     debug(graph.LAi->memo);
+     debug(graph.LAo->memo);
 
 return 0;
 }

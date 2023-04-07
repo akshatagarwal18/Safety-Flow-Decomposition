@@ -152,10 +152,10 @@ public:
                 }
 
             }
-        }
-
-        LAi = new LevelAncestors(Fi);
-        LAo = new LevelAncestors(Fo);        
+        }        
+        
+        LAi = new LevelAncestors(Fi,topoAdj);
+        LAo = new LevelAncestors(Fo,topoRadj);        
     }
 
 
