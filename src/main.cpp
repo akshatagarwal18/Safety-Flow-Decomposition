@@ -10,8 +10,6 @@ int main(){
     int nodes,edges;
     std::cin>>nodes>>edges;
 
-    std::cerr<<nodes<<" "<<edges<<std::endl;
-
     SafeFlowGraph graph(nodes);
     int a,b; double c;
     for(int i = 0 ; i < edges ; i++){
@@ -21,13 +19,10 @@ int main(){
     }
     
     graph.init();
- 
-    debug(graph.co);
-    debug(graph.ci);
-    debug(graph.LAi->get(4,1));
-    debug(graph.LAi->get(4,2));
-    debug(graph.LAi->memo);
-     debug(graph.LAo->memo);
+    auto res = graph.computeSafePaths();
+    for(auto x: res){
+        std::cout << x.flow << " " << x.u << " " << x.v << " " << x.l << " " << x.r << "\n";
+    } 
 
 return 0;
 }

@@ -10,6 +10,12 @@ public:
     std::vector<int>topoAdj, topoRadj;    
 };
 
+struct OptimalSafePath {
+    double flow;
+    int l, r;
+    int u, v;
+};
+
 class SafeFlowGraph : public Graph{
 private:
     void dfs(int v, std::vector<int>& ans ,
@@ -31,6 +37,7 @@ public:
     std::vector<std::pair<double,int>> maximumIncomingFlow, maximumOutgoingFlow;
     LevelAncestors* LAi = NULL ;
     LevelAncestors* LAo = NULL;
+
     SafeFlowGraph(int n)
     {
         numberOfNodes = n;
@@ -154,8 +161,74 @@ public:
             }
         }        
         
-        LAi = new LevelAncestors(Fi,topoAdj);
-        LAo = new LevelAncestors(Fo,topoRadj);        
+
+        LAi = new LevelAncestors(Fi);
+        LAo = new LevelAncestors(Fo);        
+    }
+
+    OptimalSafePath getPath(int u, int v, double edgeFlow){
+        int leftMaxLo = 0, leftMaxHi = LAi->level[u];
+                int ans_u  ;
+                while(leftMaxLo <= leftMaxHi){
+                    int leftMaxMid = (leftMaxLo + leftMaxHi)/2;
+                    int midNode = LAi->get(u,leftMaxMid);
+                    if(ci[midNode] < ci[u] + edgeFlow) {
+                        ans_u = midNode;
+                        leftMaxHi = leftMaxMid-1;
+
+                    } else {
+                        leftMaxLo = leftMaxMid + 1;
+                    }
+                }
+                // finding right maximal
+                int rightMaxLo = 0, rightMaxHi = LAo->level[v];
+                int ans_v;
+                while(rightMaxLo <= rightMaxHi){
+                    int rightMaxMid = (rightMaxLo + rightMaxHi)/2;
+                    int midNode = LAo->get(v,rightMaxMid);
+                    if(co[midNode] < edgeFlow + ci[u] + co[v] - ci[ans_u]){
+                        ans_v = midNode;
+                        rightMaxHi = rightMaxMid-1;
+                    } else {
+                        rightMaxLo = rightMaxMid + 1;
+                    }
+                }
+                double safeFlow = edgeFlow + ci[u] + co[v] - ci[ans_u] - co[ans_v];
+                OptimalSafePath optimalSafePath;
+                optimalSafePath.flow = safeFlow;
+                optimalSafePath.l = ans_u;
+                optimalSafePath.r = ans_v;
+                optimalSafePath.u = u;
+                optimalSafePath.v = v;
+                return optimalSafePath;
+    }
+
+    std::vector<OptimalSafePath> computeSafePaths() {
+        std::vector<OptimalSafePath> result;
+        for(int u = 0; u < numberOfNodes; u++){
+            for(auto v: adj[u]){
+                double edgeFlow = v.second;
+                // finding left maximal
+                int left , right ;
+                OptimalSafePath path = getPath(u,v.first,v.second);                
+                result.push_back(path);
+                left = path.l;
+                right = path.r;
+
+                while(left!= v.first  ){
+                    int x = LAo->get(right,0);
+                    if(x == right){break;}
+                    edgeFlow = v.second+co[v.first]-co[right];
+                    int temp = LAo->level[right]-1;
+                    right = LAo->get(right,temp);
+                    path = getPath(left,right,edgeFlow);
+                    left = path.l;
+                    right = path.r;
+                    result.push_back(path);
+                }
+            }
+        }
+        return result;
     }
 
 
