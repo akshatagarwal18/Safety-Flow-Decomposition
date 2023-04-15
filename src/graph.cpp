@@ -7,12 +7,12 @@ using namespace std;
 class Graph{
 public:
     int numberOfNodes;
-    std::vector<std::vector<std::pair<int, double>>> adj, radj;
+    std::vector<std::vector<std::pair<int, int>>> adj, radj;
     std::vector<int>topoAdj, topoRadj;    
 };
 
 struct OptimalSafePath {
-    double flow;
+    int flow;
     int l, r;
     int u, v;
     std::vector<int>completePath;
@@ -21,7 +21,7 @@ struct OptimalSafePath {
 class SafeFlowGraph : public Graph{
 private:
     void dfs(int v, std::vector<int>& ans ,
-     std::vector<std::vector<std::pair<int, double>>>&graph, std::vector<bool>& visited) {
+     std::vector<std::vector<std::pair<int, int>>>&graph, std::vector<bool>& visited) {
         visited[v] = true;
         for (auto u : graph[v]) {
             if(visited[u.first] == false){        
@@ -32,11 +32,11 @@ private:
     }
 
 public:
-    std::vector<double> totalFlowIn, totalFlowOut;
+    std::vector<int> totalFlowIn, totalFlowOut;
     std::vector<std::vector<int>> Fi, Fo;
-    std::vector<double>ci, co;
+    std::vector<int>ci, co;
     int source , sink;
-    std::vector<std::pair<double,int>> maximumIncomingFlow, maximumOutgoingFlow;
+    std::vector<std::pair<int,int>> maximumIncomingFlow, maximumOutgoingFlow;
     LevelAncestors* LAi = NULL ;
     LevelAncestors* LAo = NULL;
 
@@ -124,11 +124,11 @@ public:
                     q.pop();
                     vis[p]=true;
                     for(auto v : adj[p]){
-                        double edgeValue = v.second;
+                        int edgeValue = v.second;
                         if(maximumIncomingFlow[v.first].first == edgeValue && maximumIncomingFlow[v.first].second == 1){
                             Fi[p].push_back(v.first);
-                            double totalInputFlow = totalFlowIn[v.first];
-                            double reduce_by = totalInputFlow - edgeValue;
+                            int totalInputFlow = totalFlowIn[v.first];
+                            int reduce_by = totalInputFlow - edgeValue;
                             ci[v.first] = ci[p]-reduce_by;
                             q.push(v.first);                    
                         }
@@ -149,11 +149,11 @@ public:
                     q.pop();
                     vis[p]=true;
                     for(auto v : radj[p]){
-                        double edgeValue = v.second;
+                        int edgeValue = v.second;
                         if(maximumOutgoingFlow[v.first].first == edgeValue && maximumOutgoingFlow[v.first].second == 1){
                             Fo[p].push_back(v.first);
-                            double totalInputFlow = totalFlowOut[v.first];
-                            double reduce_by = totalInputFlow - edgeValue;
+                            int totalInputFlow = totalFlowOut[v.first];
+                            int reduce_by = totalInputFlow - edgeValue;
                             co[v.first] = co[p]-reduce_by;
                             q.push(v.first);                    
                         }
@@ -173,7 +173,7 @@ public:
         // }         cerr<<endl;
     }
 
-    OptimalSafePath getPath(int u, int v, double edgeFlow){
+    OptimalSafePath getPath(int u, int v, int edgeFlow){
         int leftMaxLo = 0, leftMaxHi = LAi->level[u];
                 int ans_u  ;
                 while(leftMaxLo <= leftMaxHi){
@@ -200,7 +200,7 @@ public:
                         rightMaxLo = rightMaxMid + 1;
                     }
                 }
-                double safeFlow = edgeFlow + ci[u] + co[v] - ci[ans_u] - co[ans_v];
+                int safeFlow = edgeFlow + ci[u] + co[v] - ci[ans_u] - co[ans_v];
                 OptimalSafePath optimalSafePath;
                 optimalSafePath.flow = safeFlow;
                 optimalSafePath.l = ans_u;
@@ -215,7 +215,7 @@ public:
         
         for(int u = 0; u < numberOfNodes; u++){
             for(auto v: adj[u]){
-                double edgeFlow = v.second;
+                int edgeFlow = v.second;
                 // finding left maximal
                 int left , right ;
                 OptimalSafePath path = getPath(u,v.first,v.second);                

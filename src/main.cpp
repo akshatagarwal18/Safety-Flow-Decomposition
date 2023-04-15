@@ -3,6 +3,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<iomanip>
 using namespace std;
 
 
@@ -22,7 +23,7 @@ vector<string> split(string &s, string &delimiters){
 int main(int argc , char* argv[]){
     // freopen("input.txt", "r", stdin);
     // freopen("output.txt", "w", stdout);
-    freopen("error.txt", "w", stderr);
+    // freopen("error.txt", "w", stderr);
     if(argc != 4){
         cout<<"Expected parameters < input > < output > < flag > "<<endl;
         exit(1);
@@ -43,10 +44,10 @@ int main(int argc , char* argv[]){
         cout<<"Error while opening the output file"<<endl;
         exit(1);
     }
-    debug(argv[0]);
-    debug(argv[1]);
-    debug(argv[2]);
-    debug(argv[3]);
+    // debug(argv[0]);
+    // debug(argv[1]);
+    // debug(argv[2]);
+    // debug(argv[3]);
 
     
     int nodes,edges;
@@ -64,13 +65,13 @@ int main(int argc , char* argv[]){
           if(counter > 0){ 
             graph.init();
             auto res = graph.computeSafePaths(flag);
-            double epsilon = 1e-7;
+            int epsilon = 1e-7;
             fout << prev << endl;
             
             for(auto x: res){
-                if(x.flow < epsilon ){continue;}
+                if(x.flow <= 0 ){continue;}
                 if(flag == true){
-                    fout << x.flow <<" ";
+                    fout <<x.flow <<" ";
                     for(int i = 0 ; i < x.completePath.size() ; i++){
                         if((i+1) == (x.completePath.size())){fout<<x.completePath[i]<<"\n";}
                         else{fout<<x.completePath[i]<<" ";}
@@ -87,7 +88,7 @@ int main(int argc , char* argv[]){
           auto v = split(line,space);
           int a = stoi(v[0]);
           int b = stoi(v[1]);
-          double c = stod(v[2]);
+          int c = stod(v[2]);
           graph.adj[a].push_back({b,c});
           graph.radj[b].push_back({a,c});
         }
@@ -95,11 +96,11 @@ int main(int argc , char* argv[]){
     graph.init();
     auto res = graph.computeSafePaths(flag);
     fout << graphName << endl;
-    double epsilon = 1e-7;
+    int epsilon = 1e-7;
     for(auto x: res){
-        if(x.flow < epsilon ){continue;}
+        if(x.flow <= 0 ){continue;}
         if(flag == true){
-            fout << x.flow <<" ";
+            fout <<x.flow <<" ";
             for(int i = 0 ; i < x.completePath.size() ; i++){
                 if((i+1) == (x.completePath.size())){fout<<x.completePath[i]<<"\n";}
                 else{fout<<x.completePath[i]<<" ";}

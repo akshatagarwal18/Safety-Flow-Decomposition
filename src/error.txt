@@ -1,4 +1,4 @@
 argv[0] ./a.out
-argv[1] IP.txt
+argv[1] input.txt
 argv[2] output.txt
-argv[3] 0
+argv[3] 1

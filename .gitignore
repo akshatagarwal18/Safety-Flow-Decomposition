@@ -1,3 +1,10 @@
 *.txt
 *.out
-
+datasets
+testing/outputs
+src/a
+src/main
+src/simp_algo
+src/acTrie
+src/a.out
+.vscode
