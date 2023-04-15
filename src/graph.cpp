@@ -2,6 +2,7 @@
 #include<queue>
 #include<algorithm>
 #include "levelancestors.cpp"
+using namespace std;
 
 class Graph{
 public:
@@ -14,6 +15,7 @@ struct OptimalSafePath {
     double flow;
     int l, r;
     int u, v;
+    std::vector<int>completePath;
 };
 
 class SafeFlowGraph : public Graph{
@@ -32,7 +34,7 @@ private:
 public:
     std::vector<double> totalFlowIn, totalFlowOut;
     std::vector<std::vector<int>> Fi, Fo;
-    std::vector<int>ci, co;
+    std::vector<double>ci, co;
     int source , sink;
     std::vector<std::pair<double,int>> maximumIncomingFlow, maximumOutgoingFlow;
     LevelAncestors* LAi = NULL ;
@@ -163,7 +165,12 @@ public:
         
 
         LAi = new LevelAncestors(Fi);
-        LAo = new LevelAncestors(Fo);        
+        LAo = new LevelAncestors(Fo);
+        int temp = 0;
+        // for(int i = 1 ; i<= numberOfNodes ; i++){
+        //     temp = LAi->get(14,i);
+        //     cerr<<temp<<" ";
+        // }         cerr<<endl;
     }
 
     OptimalSafePath getPath(int u, int v, double edgeFlow){
@@ -203,33 +210,67 @@ public:
                 return optimalSafePath;
     }
 
-    std::vector<OptimalSafePath> computeSafePaths() {
+    std::vector<OptimalSafePath> computeSafePaths(int flag) {
         std::vector<OptimalSafePath> result;
+        
         for(int u = 0; u < numberOfNodes; u++){
             for(auto v: adj[u]){
                 double edgeFlow = v.second;
                 // finding left maximal
                 int left , right ;
                 OptimalSafePath path = getPath(u,v.first,v.second);                
-                result.push_back(path);
+                
                 left = path.l;
                 right = path.r;
-
+                if(flag){complete(path);}
+                if(!(left == u && right == v.first)){
+                result.push_back(path);
+                }
                 while(left!= v.first  ){
                     int x = LAo->get(right,0);
                     if(x == right){break;}
-                    edgeFlow = v.second+co[v.first]-co[right];
+
+                    
                     int temp = LAo->level[right]-1;
                     right = LAo->get(right,temp);
-                    path = getPath(left,right,edgeFlow);
+                    edgeFlow = v.second+co[v.first]-co[right];
+                    if(edgeFlow <= 0){break;}
+                    path = getPath(u,right,edgeFlow);
                     left = path.l;
                     right = path.r;
+                    path.u = u ;
+                    path.v = v.first;
+                    
+                    if(left == u && right  == v.first){continue;}
+                    if(flag){complete(path);}
                     result.push_back(path);
                 }
             }
         }
         return result;
     }
+
+    void complete(OptimalSafePath& path){
+        int left = path.l;
+        int right = path.r;
+        int temp = path.u;
+        std::vector<int>v1;
+        v1.push_back(temp);        
+        while(temp!= left){
+            int temp1 = LAi->get(temp,LAi->level[temp]-1);
+            v1.push_back(temp1);            
+            temp = temp1; 
+        } reverse(v1.begin(),v1.end());
+        v1.push_back(path.v);
+        temp = path.v ;        
+        while(temp!=right){
+            int temp1 = LAo->get(temp,LAo->level[temp]-1);
+            v1.push_back(temp1);            
+            temp = temp1;            
+        }  
+        path.completePath = v1;        
+    }
+    
 
 
 };
