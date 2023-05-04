@@ -75,28 +75,22 @@ if __name__ == '__main__':
             print(PA)          
             os.system(PA)
             print(PA)
-        
+
         path3 = path1 + '/' + dataset 
         files = os.listdir(path3)
-        sum1 = 0
-        sum2 = 0
-        sum3 = 0
+        sum_main = 0
+        sum_simp = 0
+        sum_acSimp = 0
         sum4 = 0
         size_1 = 0
         size_2 = 0
         for file in files:
             if file.endswith('.graph'):
-                
                 executable = '../src/main'
                 input_file = '../datasets/' + dataset + '/' + file 
                 output_file_1 = 'outputs/output_' + dataset + '/' + file.split('.')[0] + '_main.txt'
                 command = './' + executable + ' ' + input_file + ' ' + output_file_1 + ' ' + '1'
-                now = datetime.datetime.now().timestamp()               
                 os.system(command)
-                after_execution = datetime.datetime.now().timestamp()
-                sum1 += after_execution-now
-                file_stats1 = os.stat(output_file_1)
-                size_1 += file_stats1.st_size
 
                 executable = '../src/simp_algo'
                 output_file_2 = 'outputs/output_' + dataset + '/' + file.split('.')[0] + '_simpalgo.txt'
@@ -104,7 +98,7 @@ if __name__ == '__main__':
                 now = datetime.datetime.now().timestamp()               
                 os.system(command)
                 after_execution = datetime.datetime.now().timestamp()
-                sum2 += after_execution-now
+                sum_simp += after_execution-now
                 file_stats2 = os.stat(output_file_2)
                 size_2 += file_stats2.st_size
 
@@ -112,15 +106,12 @@ if __name__ == '__main__':
                 output_file_main = 'outputs/output_' + dataset + '/' + file.split('.')[0] + 'acTrie_main.txt'
                 output_file_simp_algo = 'outputs/output_' + dataset + '/' + file.split('.')[0] + 'acTrie_simp_algo.txt'
                 command_main = './' + executable + ' f ' + '< ' + output_file_1 + ' > ' + output_file_main
-                command_simp_algo = './' + executable + ' f ' + '< ' + output_file_2 + ' > ' + output_file_simp_algo
-                now = datetime.datetime.now().timestamp()               
+                command_simp_algo = './' + executable + ' f ' + '< ' + output_file_2 + ' > ' + output_file_simp_algo           
                 os.system(command_main)
-                after_execution = datetime.datetime.now().timestamp()
-                sum3 += after_execution-now
                 now = datetime.datetime.now().timestamp()               
                 os.system(command_simp_algo)
                 after_execution = datetime.datetime.now().timestamp()
-                sum4 += after_execution-now
+                sum_acSimp += after_execution-now
                 
 
                 check = verify(output_file_main, output_file_simp_algo)
@@ -128,11 +119,31 @@ if __name__ == '__main__':
                     temp = output_file_main +  ' and ' + output_file_simp_algo + ' differs in result.'
                     print(temp)
                 else :
-                      print("Hurray! Verified")
+                   print("Hurray! Verified")
+        
+                executable = '../src/main'
+                input_file = '../datasets/' + dataset + '/' + file 
+                output_file_3 = 'outputs/output_' + dataset + '/' + file.split('.')[0] + '_main.txt'
+                command = './' + executable + ' ' + input_file + ' ' + output_file_3 + ' ' + '0'
+                now = datetime.datetime.now().timestamp()    
+                os.system(command)
+                after_execution = datetime.datetime.now().timestamp()
+                sum_main += after_execution-now
+                file_stats1 = os.stat(output_file_3)
+                size_1 += file_stats1.st_size
+
 
         with open("timings.txt",'a') as f:
-           f.write("For dataset {} {} {} {} {}".format(dataset,sum1,sum2,sum3,sum4))
-        # with open("output_sizes.txt",'a') as f:
-        #     size_1 = size_1//(1024*1024)
-        #     size_2 = size_2//(1024*1024)
-        #     f.write("For dataset {} {} {}".format(dataset,size_1,size_2))
+           f.write("For dataset {} {} {} {}".format(dataset,sum_main,sum_simp,sum_simp+sum_acSimp))
+           f.write("\n")
+        with open("output_sizes.txt",'a') as f:
+            size_1 = size_1//(1024*1024)
+            size_2 = size_2//(1024*1024)
+            f.write("For dataset {} {} {}".format(dataset,size_1,size_2))      
+            f.write("\n")              
+
+
+
+
+
+
