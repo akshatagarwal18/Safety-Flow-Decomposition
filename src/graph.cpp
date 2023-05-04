@@ -36,6 +36,7 @@ public:
     std::vector<std::vector<int>> Fi, Fo;
     std::vector<int>ci, co;
     int source , sink;
+    vector<vector<int>>gr;
     std::vector<std::pair<int,int>> maximumIncomingFlow, maximumOutgoingFlow;
     LevelAncestors* LAi = NULL ;
     LevelAncestors* LAo = NULL;
@@ -51,6 +52,7 @@ public:
         co.resize(n);
         Fi.resize(n);
         Fo.resize(n);
+        gr.resize(n,vector<int>(n));
         maximumIncomingFlow.resize(n,{0,0});
         maximumOutgoingFlow.resize(n,{0,0});        
         source = -1 ;
@@ -63,6 +65,7 @@ public:
         // Calculating totalFlowIn and totalFlowOut
         for(int u = 0 ; u < numberOfNodes ; u++){
             for(auto v : adj[u]){
+                gr[u][v.first]=v.second;
                 totalFlowIn[v.first]+=v.second;
                 totalFlowOut[u]+=v.second;              
             }
@@ -163,6 +166,9 @@ public:
             }
         }        
         
+    //     for(int i = 0 ; i < numberOfNodes ; i++){
+    //     cout<<i<<": "<<ci[i]<<endl;
+    //  } cout<<endl;
 
         LAi = new LevelAncestors(Fi);
         LAo = new LevelAncestors(Fo);
@@ -172,7 +178,8 @@ public:
         //     cerr<<temp<<" ";
         // }         cerr<<endl;
     }
-
+     
+     
     OptimalSafePath getPath(int u, int v, int edgeFlow){
         int leftMaxLo = 0, leftMaxHi = LAi->level[u];
                 int ans_u  ;
@@ -210,6 +217,21 @@ public:
                 return optimalSafePath;
     }
 
+
+
+    bool isRightExtendible(int flow, int v){
+        int temp1 = totalFlowOut[v];
+        int temp2 = maximumOutgoingFlow[v].first;
+        int temp3 = temp1 - temp2 ;
+        int rem = flow - temp3;
+        if(rem > 0){return true;}
+        return false;
+    }
+    
+    bool isLeftExtendible(int flow, int u){
+        return false;
+    }
+
     std::vector<OptimalSafePath> computeSafePaths(int flag) {
         std::vector<OptimalSafePath> result;
         
@@ -218,6 +240,87 @@ public:
                 int edgeFlow = v.second;
                 // finding left maximal
                 int left , right ;
+
+                // Checking if the this edge is unique maximum incoming edge or not
+                int temp1 = u ;
+                int temp2 = v.first;
+                if(maximumIncomingFlow[temp2].second == 1 && maximumIncomingFlow[temp2].first == edgeFlow){
+                    
+                    if(Fi[temp2].size() == 0){
+                        //cout<<v.first<<endl;
+                        int l = 0,r = LAi->level[u],mid, x;
+                        while(l<=r){
+                            mid = (l+r)/2;
+                            int xx = LAi->get(u,mid);
+                            if(ci[xx] < ci[u] + edgeFlow){
+                                x = xx;
+                                r = mid-1;
+                            }else{
+                                l = mid+1;
+                            }
+                        }
+
+                        OptimalSafePath path;
+                        path.u = u;
+                        path.v = v.first;
+                        path.l = x ;
+                        path.r = v.first;
+                        path.flow = edgeFlow - ci[x] + ci[u];
+                        if( !(path.l == u && path.r  == v.first)){
+                        if(flag){complete(path);}
+                        result.push_back(path);
+                        }
+                        // // int lev = ;
+                        int cur = u ;
+                        int last = x ;
+                        
+                        // cout<<cur<<" "<<last<<endl; 
+                         while(LAi->level[last]){
+                            int u1 = LAi->get(cur,(LAi->level[cur]-1));
+                            l = 0; r = LAi->level[u1]; 
+                            int y;
+                            int flow = gr[u1][cur];
+                            while(l<=r){
+                                mid = (l+r)/2;
+                                int yy = LAi->get(u1,mid);
+                                if(ci[yy] < ci[u1] + flow){
+                                    y = yy;
+                                    r = mid-1;
+                                }else{
+                                    l = mid+1;
+                                }
+                            }
+                            path.u = u1;
+                            path.v = cur;
+                            path.l = y;
+                            path.r = cur;
+                            path.flow = flow - ci[y] + ci[u1];
+                            if( !(path.l == u1 && path.r  == cur)){
+                                if(flag){complete(path);}
+                                result.push_back(path);
+                            }
+                            cur = u1;
+                            last = y;
+                                                    // cout<<cur<<" "<<last<<endl;
+                         }                          
+                    }
+                    continue;
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 OptimalSafePath path = getPath(u,v.first,v.second);                
                 
                 left = path.l;

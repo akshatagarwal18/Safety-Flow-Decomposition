@@ -90,7 +90,7 @@ if __name__ == '__main__':
                 executable = '../src/main'
                 input_file = '../datasets/' + dataset + '/' + file 
                 output_file_1 = 'outputs/output_' + dataset + '/' + file.split('.')[0] + '_main.txt'
-                command = './' + executable + ' ' + input_file + ' ' + output_file_1 + ' ' + '1'
+                command = './' + executable + ' ' + input_file + ' ' + output_file_1 + ' ' + '0'
                 now = datetime.datetime.now().timestamp()               
                 os.system(command)
                 after_execution = datetime.datetime.now().timestamp()
@@ -108,31 +108,31 @@ if __name__ == '__main__':
                 file_stats2 = os.stat(output_file_2)
                 size_2 += file_stats2.st_size
 
-                executable = '../src/acTrie'
-                output_file_main = 'outputs/output_' + dataset + '/' + file.split('.')[0] + 'acTrie_main.txt'
-                output_file_simp_algo = 'outputs/output_' + dataset + '/' + file.split('.')[0] + 'acTrie_simp_algo.txt'
-                command_main = './' + executable + ' f ' + '< ' + output_file_1 + ' > ' + output_file_main
-                command_simp_algo = './' + executable + ' f ' + '< ' + output_file_2 + ' > ' + output_file_simp_algo
-                now = datetime.datetime.now().timestamp()               
-                os.system(command_main)
-                after_execution = datetime.datetime.now().timestamp()
-                sum3 += after_execution-now
-                now = datetime.datetime.now().timestamp()               
-                os.system(command_simp_algo)
-                after_execution = datetime.datetime.now().timestamp()
-                sum4 += after_execution-now
+        #         executable = '../src/acTrie'
+        #         output_file_main = 'outputs/output_' + dataset + '/' + file.split('.')[0] + 'acTrie_main.txt'
+        #         output_file_simp_algo = 'outputs/output_' + dataset + '/' + file.split('.')[0] + 'acTrie_simp_algo.txt'
+        #         command_main = './' + executable + ' f ' + '< ' + output_file_1 + ' > ' + output_file_main
+        #         command_simp_algo = './' + executable + ' f ' + '< ' + output_file_2 + ' > ' + output_file_simp_algo
+        #         now = datetime.datetime.now().timestamp()               
+        #         os.system(command_main)
+        #         after_execution = datetime.datetime.now().timestamp()
+        #         sum3 += after_execution-now
+        #         now = datetime.datetime.now().timestamp()               
+        #         os.system(command_simp_algo)
+        #         after_execution = datetime.datetime.now().timestamp()
+        #         sum4 += after_execution-now
                 
 
-                check = verify(output_file_main, output_file_simp_algo)
-                if check == False:
-                    temp = output_file_main +  ' and ' + output_file_simp_algo + ' differs in result.'
-                    print(temp)
-                else :
-                      print("Hurray! Verified")
+        #         check = verify(output_file_main, output_file_simp_algo)
+        #         if check == False:
+        #             temp = output_file_main +  ' and ' + output_file_simp_algo + ' differs in result.'
+        #             print(temp)
+        #         else :
+        #               print("Hurray! Verified")
 
-        with open("timings.txt",'a') as f:
-           f.write("For dataset {} {} {} {} {}".format(dataset,sum1,sum2,sum3,sum4))
-        # with open("output_sizes.txt",'a') as f:
-        #     size_1 = size_1//(1024*1024)
-        #     size_2 = size_2//(1024*1024)
-        #     f.write("For dataset {} {} {}".format(dataset,size_1,size_2))
+        # with open("timings.txt",'a') as f:
+        #    f.write("For dataset {} {} {} {} {}".format(dataset,sum1,sum2,sum3,sum4))
+        with open("output_sizes.txt",'a') as f:
+            size_1 = size_1//(1024*1024)
+            size_2 = size_2//(1024*1024)
+            f.write("For dataset {} {} {}".format(dataset,size_1,size_2))
